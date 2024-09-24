@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "sm_filemgr.h"
+#include <vector>
+std::vector<String> vctListFile;
 
 String storage_file_prefix(const char* file_name) {
     if (!file_name)
@@ -20,6 +22,8 @@ int storage_listfiles(const char* pszFileExt) {
         return -1;
     }
 
+    vctListFile.clear();
+
     int count = 0;
     File file = root.openNextFile();
     while (file) {
@@ -30,14 +34,21 @@ int storage_listfiles(const char* pszFileExt) {
             String strName = file.name();
             if (!pszFileExt || strName.endsWith(String(pszFileExt))) {
                 Serial.println(String(file.name()) + " --- " + String(file.size()) + " bytes.");
+                vctListFile.push_back(strName);
                 count++;
             }            
         }
 
         file = root.openNextFile();
     }
+
     root.close();
     return count;
+}
+
+void list_files_with_serial()
+{
+    storage_listfiles(NULL);
 }
 
 void download_file_with_serial(String strFile)
@@ -74,15 +85,47 @@ void download_file_with_serial(String strFile)
     Serial.printf("%d bytes sended.\n", count);
 }
 
-void list_files_with_serial()
-{
-    storage_listfiles(NULL);
+void download_files_with_serial(String strFile) {
+    if (strFile.startsWith("*.")) {
+        if (strFile.endsWith(".*"))
+            storage_listfiles(NULL);
+        else {
+            strFile.remove(0, 1);
+            storage_listfiles(strFile.c_str());
+        }
+
+        for (const String& file_name : vctListFile) {
+            delay(100);
+            Serial.println("download file: " + file_name);
+            download_file_with_serial(file_name);
+        }
+    }
+    else {
+        download_file_with_serial(strFile);
+    }
 }
 
 void del_file_with_serial(String strFile)
 {
-    strFile = storage_file_prefix(strFile.c_str());
-    std::remove(strFile.c_str());
+    if (strFile.startsWith("*.")) {
+        if (strFile.endsWith(".*"))
+            storage_listfiles(NULL);
+        else {
+            strFile.remove(0, 1);
+            storage_listfiles(strFile.c_str());
+        }
+
+        for (const String& file_name : vctListFile) {
+            strFile = storage_file_prefix(file_name.c_str());
+            std::remove(strFile.c_str());
+            Serial.println("remove file " + strFile);
+        }
+    }
+    else {
+        strFile = storage_file_prefix(strFile.c_str());        
+        std::remove(strFile.c_str());
+        Serial.println("remove file " + strFile);
+    }
 }
 
 void rename_file_with_serial(String old_name, String new_name)
@@ -119,7 +162,7 @@ void sm_filemgr_process()
         String file_name = the_cmd.substring((unsigned int)(idx_space + 1));
         if (cmd_type == "download" || cmd_type == "get")
         {            
-            download_file_with_serial(file_name);
+            download_files_with_serial(file_name);
         }
         else if (cmd_type == "del" || cmd_type == "remove" || cmd_type == "rm")
         {
