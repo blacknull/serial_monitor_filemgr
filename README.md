@@ -26,9 +26,9 @@ And this file manager provide a light weight and very easy way to manage esp32 f
 * ok, that's all. now your can compile and upload the firmware to esp32, then open Serial Monitor.
   * click termianl window, input file manage command, and press enter to run following command:
       * dir/list/ls --- list all files in your spiffs/littlefs
-      * del/rm/remove filename --- remove a specific file
+      * del/rm/remove filename --- remove a specific file, support wildcard
       * rename old_name new_name --- rename a file
-      * download/get filename -- download a specific file to local 'data' dir
+      * download/get filename -- download a specific file to local 'data' dir, support wildcard
   * actually, you can modify cmd processor to run your own cmd. that's really a great way to interactive with esp32.
 
 ### to do list
