@@ -18,7 +18,7 @@ And this file manager provide a light weight and very easy way to manage esp32 f
   - #include "sm_filemgr.h"
   - sm_filemgr_init(); add in setup(). 
   - sm_filemgr_process(); add in loop().
-* copy file_mgr.py to C:\Users\\<font color=red>**NAME**</font>\\\.platformio\platforms\espressif32\monitor,  please replace NAME with your login name in windows.
+* copy file_mgr.py to C:\Users\\<font color=red>**NAME**</font>\\\.platformio\penv\Lib\site-packages\platformio\device\monitor\filters,  please replace NAME with your login name in windows.
 * modify your platformio.ini, add following lines into the section of your config
   - board_build.filesystem = littlefs ;spiffs
   - build_flags = -D FS_LITTLEFS ;FS_SPIFFS
